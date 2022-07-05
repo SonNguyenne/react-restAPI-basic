@@ -1,0 +1,65 @@
+.show-table, tr , td, th{
+    background-color:rgb(188, 215, 228);
+    margin:auto;
+    border: 1px solid rgb(255, 255, 255);
+}
+
+.btn-delete{
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #6d0202;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 14px;
+    padding: 20px;
+    width: 100px;
+    margin: 5px;
+}
+
+.btn-delete:hover{
+    background-color: #500000;
+}
+
+.btn-update{
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #03627a;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 14px;
+    padding: 20px;
+    width: 100px;
+    margin: 5px;
+}
+
+.btn-update:hover{
+    background-color: #014a5c;
+}
+
+/* 
+.show-list{
+    display: flex;
+} */
+/* 
+.boxContent{
+    margin-left: 50px;
+} */
+
+
+.btn-add{
+    padding: 10px 20px;
+    border-radius: 4px;
+    background-color: inherit;
+    border: 1px solid rgb(255, 255, 255);
+    margin-top: 10px;
+}
+
+.btn-add:hover{
+    background:linear-gradient( #03627a,#e3eff2) ;
+
+}
+th{
+    padding: 15px 10px;
+}

@@ -1,0 +1,47 @@
+.login-form{
+    margin-top: 20px;
+    border-radius: 5px;
+    align-self: center;
+    padding: 10%;
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login-form label{
+    margin-top: 20px;
+}
+
+
+
+.login-input {
+    width: 100%;
+    display: inline-block;
+    contain: content;
+    background-color: inherit;
+    border: none;
+    border-bottom: 1px black solid;
+
+  }
+
+  form div{ 
+    display: flex;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  form div input{
+    padding: 10px;
+    margin-left: 10px;
+  }
+
+
+.login-btn{
+    background-color: inherit;
+  color: black;
+  padding: 10px;
+  border-radius: 50%;
+}
+.login-btn:hover{
+    background-color: rgb(142, 187, 249);
+}
