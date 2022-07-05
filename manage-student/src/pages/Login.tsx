@@ -7,26 +7,28 @@ import useLocalStorage from '../hooks/useLocalStorage';
 const Login = () => {
 
     let navigate = useNavigate();
-    const [refresh, setRefresh] = useState(false);
     const [user, setUser] = useState({
         username: '',
         password:''
     })
-    const onRefresh = () => {setRefresh(!refresh)}
-    const hashedPassword = bcrypt.hashSync( "123456",bcrypt.genSaltSync(10));
+    const [store,setStore] = useLocalStorage('isLoggedIn','')
+    // const hashedPassword = bcrypt.hashSync( "123456",bcrypt.genSaltSync());
 
 
     const handleLogin = (e:any) =>{
         e.preventDefault();
         console.log(user.password)
-        const doesPasswordMatch = bcrypt.compareSync(user.password, hashedPassword)
-        console.log('hash',doesPasswordMatch)
-        if(user.username=='admin'&&doesPasswordMatch){
-            localStorage.setItem('isLoggedIn','true')
+        // const doesPasswordMatch = bcrypt.compareSync(user.password, hashedPassword)
+        // console.log('hash',doesPasswordMatch)
+        if(user.username=='admin'&&user.password=='123456'){
+            setStore('true')
             navigate('/manage')
+            alert('Login successful')
+
+            window.location.reload();
         }else{
             alert('Invalid Username or Password')
-        onRefresh();
+            window.location.reload();
             
         }
     }
@@ -43,25 +45,27 @@ const Login = () => {
     <div>
         <form onSubmit={handleLogin} className='login-form'>
             <div>
-            <label>Username: </label>
+            {/* <label>Username: </label> */}
             <input 
             className='login-input'
             type="text"
             name="username"
+            placeholder='Username'
             onChange={handleInput}
             value={user.username || ""} />
             </div>
             <div>
-            <label>Password: </label>
+            {/* <label>Password: </label> */}
             <input className='login-input' 
             type="password" 
             name="password" 
+            placeholder='Password'
+
             onChange={handleInput} 
             value={user.password || ""}/>
             </div>
             <button 
-            className='login-btn' 
-            onClick={(e) =>handleLogin}
+            className='login-btn'
             >Login</button>
         </form>
       
