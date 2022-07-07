@@ -1,14 +1,18 @@
 /* Replace with your SQL commands */
 create table if not exists class(
     classId integer primary key,
-    className varchar
+    className varchar,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 create table if not exists student(
     studentId integer primary key,
     studentName varchar,
     studentPhone varchar,
-    studentClassId varchar
+    studentClassId varchar,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 insert into class(classId, className) VALUES ('1950201','Cong Nghe Thong Tin'),('1950421','Bac Si'),('1954124','Ngan Hang'),('1951512','Nha Hang'),('1951222','Cong An');

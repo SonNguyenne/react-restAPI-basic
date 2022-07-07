@@ -1,8 +1,13 @@
 import axios from 'axios'
 import React, { ChangeEvent, FormEvent,  useEffect,  useState } from 'react'
+import { useParams, useLocation, Navigate , useNavigate} from 'react-router-dom';
+
 import './Form.css'
 
 const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
+  const location = useLocation()
+  const params = useParams()
+  const navigate = useNavigate();
   const [data, setData] = useState<any>({
     studentid: '', 
     studentname: '', 
@@ -10,14 +15,16 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
     studentclassid: ''
    })
 
+  
+
   const[errors,setErrors]=useState<any>([])
 
   useEffect(()=> {
-    if(record) {
-      console.log('record==>', record)
-      setData(record)
+    if(location.state) {
+      console.log('location==>', location)
+      setData(location.state)
     }
-  }, [record])
+  }, [location.state])
 
 
   
@@ -28,14 +35,16 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
       
       e.preventDefault()
       console.log('data===>', data )
+      console.log('type===>', type )
       let res
-      if(type == 'create'){
+      if(!location.state){
         res = await axios.post(
           'http://localhost:3000/users', data, {
             headers: {
               "Content-Type": "application/json"
             }
         })
+        
       }else{
           res = await axios.put(`http://localhost:3000/users/${data.studentid}`,data,
           {
@@ -45,8 +54,7 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
           })
       }
       if (res && res.data) {
-        onOpenForm()
-        onRefresh()
+        navigate('/manage')
       }
     } catch (e) {
       console.log('ERROR in create or update student===>', e)
@@ -55,7 +63,7 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
   }
 
   const closeForm = () =>{
-    onCloseForm()
+    navigate('/manage')
   }
 
   
@@ -92,7 +100,7 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
 
       }
   }
- 
+
 
 
   return (
@@ -166,7 +174,7 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
       </form>
 
       </div>
-      
+     
     </div>
   )
 }

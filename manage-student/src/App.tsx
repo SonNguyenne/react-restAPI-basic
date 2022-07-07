@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {Routes, Route, Link,useNavigate} from 'react-router-dom'
 import './App.css';
+import Form from './components/Form';
 import Home from './pages/Home';
 import Login from './pages/Login';
 
@@ -69,6 +70,8 @@ function App() {
         <Routes>
           <Route path='/' element={<Home/>}/>
           <Route path='/manage' element={<StudentList/>}/>
+          <Route path='/addorupdate' element={<Form />}/>
+
         </Routes>
       </div>
     );

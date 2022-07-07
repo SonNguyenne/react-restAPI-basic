@@ -4,16 +4,24 @@ import React, { FormEvent, useEffect, useState , ChangeEvent} from 'react'
 import './ShowList.css'
 import Form from '../components/Form'
 import useLocalStorage from '../hooks/useLocalStorage';
+import Modal from 'react-modal'
+import { Navigate, useNavigate } from 'react-router-dom';
 
 
 const StudentList = () => {
     const [dataList,setDataList] = useState([])
+    const navigate = useNavigate();
     
     //show and hide form
     const [isOpened, setIsOpened] = useState(false);
     const [refresh, setRefresh] = useState(false);
+    //show and hide form
+    const [id,setId] = useState(null);
+    const [modal, setModal] = useState(false);
     const [selected, setSelected] = useState({});
     const [type, setType] = useState('')
+
+    const[page,setPage]= useState(0)
 
     const onRefresh = () => {setRefresh(!refresh)}
 
@@ -22,20 +30,50 @@ const StudentList = () => {
           'http://localhost:3000/users', 
           { 
             headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            },
+            params:{page: page
         }
       })
         setDataList(response.data);
+        console.log('res',response)
       }
+
+      
+
+    const PrePage = () => {
+        const pg = page === 0 ? 0 : page-1
+        setPage(pg)
+        console.log('pre',page)
+
+    }
+
+    const NextPage = () =>{
+        console.log('length',dataList.length)
+        if(dataList.length < 5){
+            document.getElementById('next')?.setAttribute("disabled",'disabled')
+        }else{
+            setPage(page+1)
+        }
+        console.log('next',page)
+
+    }
+
 
     useEffect(() => {
         fetchUsers()
     }, [refresh])
+
+    useEffect(() => {
+        fetchUsers()
+        console.log('page',page)
+    }, [page])
     
     //GET
     useEffect(() => {
         fetchUsers();
     },[])
+
     
     const deleteStudent = async(id:any,e:any) =>{
         e.preventDefault()
@@ -46,6 +84,8 @@ const StudentList = () => {
             }
         }
         )
+        setModal(false);
+        setId(null)
         onRefresh()
     }
 
@@ -53,24 +93,40 @@ const StudentList = () => {
     function onUpdate(item:any,e:any) {
         setSelected(item)
         setIsOpened(true)
+        navigate('/addorupdate',{state: item})
         setType('update')   
 
-    }
+    } 
 
     const openForm = () =>{
       setIsOpened(true);
       setSelected({})
+      navigate('/addorupdate')
       setType('create')
-        
     }
 
     const closeForm = () =>{
         setIsOpened(false);
       }
+
+      function onDelete(id:any,e:any) {
+        setId(id)
+        setModal(true);
+      }
+      function onDeleteClose() {
+        setModal(false);
+      }
+
+      function PageChange(){
+
+      }
     
    return(
     <div className='show-list'>
+   <button className='btn-add' onClick={openForm} >Add Student</button>
+
     <div className='header'> <b>Manage Student</b></div>
+    
    <table className='show-table'>
     <thead>
         <tr>
@@ -85,6 +141,12 @@ const StudentList = () => {
             </th>
             <th>
                 Student ClassId
+            </th>
+            <th>
+                created
+            </th>
+            <th>
+                updated
             </th>
             <th>
                 Action
@@ -105,22 +167,46 @@ const StudentList = () => {
                    </td>
                    <td>
                        {item.studentclassid}
+                   </td><td>
+                       {item.created_at}
+                   </td><td>
+                       {item.updated_at}
                    </td>
                    <th>     
-                    <button className='btn-delete' onClick={(e) => deleteStudent(item.studentid, e)}>Delete</button>
+                    <button className='btn-delete' onClick={(e)=> onDelete(item.studentid, e)}>Delete</button>
                     <button className='btn-update' onClick={(e) => onUpdate(item, e)}>Update</button>
                     
                     </th>
                </tr>
            </tbody>
        ))}
+       
    </table>
-   <div></div>
-   <button className='btn-add' onClick={openForm} >Add Student</button>
-   {isOpened && (
-        <Form record={selected} onOpenForm={openForm} onCloseForm={closeForm} onRefresh={onRefresh} type={type} />
-   )}
+   <div className='page'>
+    <input className='page-context' type="text" name='count' value={page +1} onChange={PageChange} disabled/>
+    <a onClick={PrePage} className="previous" id='previous'>&#8249;</a>
+   <a onClick={NextPage}  className="next" id='next'>&#8250;</a>
+    </div>
+    
+    
+
    
+   
+    <Modal
+        isOpen={modal}
+        contentLabel="My dialog"
+        className="mymodal"
+        overlayClassName="myoverlay"
+        ariaHideApp={false}
+        closeTimeoutMS={500}
+      >
+        <div className="modal-content">Confirm Delete</div>
+
+        <div>
+        <button className='btn-delete' onClick={(e) => deleteStudent(id,e)}>Delete</button>
+        <button className='btn-closeModal' onClick={onDeleteClose}>Close modal</button>
+        </div>
+      </Modal>
    </div>
    )
   

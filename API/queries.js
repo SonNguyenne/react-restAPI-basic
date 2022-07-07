@@ -8,7 +8,9 @@ const pool = new Pool({
 })
 
 const getUsers = (req, res) => {
-  pool.query('SELECT * FROM student', (error, results) => {
+  const page = req.query.page
+  
+  pool.query(`SELECT * FROM student ORDER BY created_at DESC LIMIT 5 OFFSET ${page * 5}`, (error, results) => {
     if (error) {
       throw error
     }
@@ -45,11 +47,12 @@ const createUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id)
+  const now = new Date().toUTCString() + ""
   const { studentname, studentphone, studentclassid } = req.body
 
 
   pool.query(
-    `UPDATE student SET studentName ='${studentname}',studentPhone ='${studentphone}' , studentClassId = '${studentclassid}' WHERE studentId = ${id}`,
+    `UPDATE student SET studentName ='${studentname}',studentPhone ='${studentphone}' , studentClassId = '${studentclassid}', updated_at='${now}'  WHERE studentId = ${id}`,
     (error, results) => {
       if (error) {
         throw error

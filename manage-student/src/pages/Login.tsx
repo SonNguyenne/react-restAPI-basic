@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import bcrypt from 'bcryptjs'
 import './Login.css'
 import useLocalStorage from '../hooks/useLocalStorage';
 
@@ -12,15 +11,15 @@ const Login = () => {
         password:''
     })
     const [store,setStore] = useLocalStorage('isLoggedIn','')
-    // const hashedPassword = bcrypt.hashSync( "123456",bcrypt.genSaltSync());
 
 
     const handleLogin = (e:any) =>{
         e.preventDefault();
-        console.log(user.password)
+    // const hashedPassword = bcrypt.hashSync( "123456",bcrypt.genSaltSync());
+
         // const doesPasswordMatch = bcrypt.compareSync(user.password, hashedPassword)
         // console.log('hash',doesPasswordMatch)
-        if(user.username=='admin'&&user.password=='123456'){
+        if(user.username==='admin'&&user.password==='123456'){
             setStore('true')
             navigate('/manage')
             alert('Login successful')

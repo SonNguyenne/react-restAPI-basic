@@ -4,22 +4,6 @@
     border: 1px solid rgb(255, 255, 255);
 }
 
-.btn-delete{
-    display: inline-block;
-    border-radius: 4px;
-    background-color: #6d0202;
-    border: none;
-    color: #FFFFFF;
-    text-align: center;
-    font-size: 14px;
-    padding: 20px;
-    width: 100px;
-    margin: 5px;
-}
-
-.btn-delete:hover{
-    background-color: #500000;
-}
 
 .btn-update{
     display: inline-block;
@@ -63,3 +47,98 @@
 th{
     padding: 15px 10px;
 }
+
+.mymodal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  
+    border: 1px solid #ccc;
+    background:linear-gradient( #03627a,#e3eff2);
+    overflow: auto;
+    border-radius: 4px;
+    outline: none;
+    padding: 20px;
+  }
+  
+  .myoverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+  }
+
+  .modal-content{
+    margin-left:70px;
+    padding-bottom: 10px;
+  }
+.btn-delete{
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #6d0202;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 14px;
+    padding: 20px;
+    width: 120px;
+    margin: 5px;
+}
+
+.btn-delete:hover{
+    background-color: #500000;
+}
+
+
+.btn-closeModal{
+    display: inline-block;
+    border-radius: 4px;
+    background-color: #03627a;
+    border: none;
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 14px;
+    padding: 20px;
+    
+    margin: 5px;
+}
+.btn-closeModal:hover{
+    background-color: #4a869c;
+}
+
+a {
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+  }
+  
+  a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+  
+  .previous {
+    background-color:inherit;
+    color: black;
+    border-radius: 50%;
+
+  }
+  
+  .next {
+    background-color:inherit;
+    color: black;
+    border-radius: 50%;
+
+  }
+  .page{
+    position: relative;
+  }
+
+  .page-context{
+    background-color: inherit;
+    width: 20px;
+    border: none;
+  }
