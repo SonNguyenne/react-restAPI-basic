@@ -4,7 +4,7 @@ import { useParams, useLocation, Navigate , useNavigate} from 'react-router-dom'
 
 import './Form.css'
 
-const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
+const Form = () => {
   const location = useLocation()
   const params = useParams()
   const navigate = useNavigate();
@@ -34,32 +34,33 @@ const Form = ({onOpenForm, onCloseForm,onRefresh, record, type}:any) => {
     try {
       
       e.preventDefault()
-      console.log('data===>', data )
-      console.log('type===>', type )
       let res
+      const _data = {...data, studentid: Number(data.studentid)}
+      
       if(!location.state){
+        console.log(data)
+
         res = await axios.post(
-          'http://localhost:3000/users', data, {
+          'http://localhost:3000/students', _data, {
             headers: {
               "Content-Type": "application/json"
             }
         })
-        
+        navigate('/manage')
       }else{
-          res = await axios.put(`http://localhost:3000/users/${data.studentid}`,data,
+          res = await axios.put(`http://localhost:3000/students/${data.studentid}`,_data,
           {
               headers : {
                   "Content-Type" : "application/json"
               }
           })
-      }
-      if (res && res.data) {
         navigate('/manage')
       }
+      console.log(res,'res')
     } catch (e) {
       console.log('ERROR in create or update student===>', e)
     }
-   
+    
   }
 
   const closeForm = () =>{

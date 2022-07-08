@@ -26,8 +26,9 @@ const StudentList = () => {
     const onRefresh = () => {setRefresh(!refresh)}
 
     const fetchUsers = async () => {
+        const pages = page * 5
         const response = await axios.get(
-          'http://localhost:3000/users', 
+            `http://localhost:3000/students?filter[limit]=5&filter[skip]=${pages}`, 
           { 
             headers: {
             "Content-Type": "application/json",
@@ -77,7 +78,7 @@ const StudentList = () => {
     
     const deleteStudent = async(id:any,e:any) =>{
         e.preventDefault()
-        await axios.delete(`http://localhost:3000/users/${id}`,
+        await axios.delete(`http://localhost:3000/students/${id}`,
         {
             headers : {
                 "Content-Type" : "application/json"
