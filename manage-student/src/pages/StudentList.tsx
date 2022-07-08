@@ -146,9 +146,6 @@ const StudentList = () => {
                 created
             </th>
             <th>
-                updated
-            </th>
-            <th>
                 Action
             </th>
         </tr>
@@ -169,9 +166,7 @@ const StudentList = () => {
                        {item.studentclassid}
                    </td><td>
                        {item.created_at}
-                   </td><td>
-                       {item.updated_at}
-                   </td>
+                   </td>                        
                    <th>     
                     <button className='btn-delete' onClick={(e)=> onDelete(item.studentid, e)}>Delete</button>
                     <button className='btn-update' onClick={(e) => onUpdate(item, e)}>Update</button>
@@ -179,7 +174,8 @@ const StudentList = () => {
                     </th>
                </tr>
            </tbody>
-       ))}
+       )
+      )}
        
    </table>
    <div className='page'>
