@@ -1,15 +1,17 @@
 import {TokenServiceBindings} from '@loopback/authentication-jwt';
 import {authorize} from '@loopback/authorization';
 import {inject, service} from '@loopback/core';
-import {repository} from '@loopback/repository';
+import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
 import {
   get,
   getModelSchemaRef,
   HttpErrors,
+  param,
   patch,
   post,
   put,
   requestBody,
+  response,
   SchemaObject,
 } from '@loopback/rest';
 import _ from 'lodash';
@@ -35,6 +37,22 @@ export class UserController {
     @inject('services.EmailService') public emailService: EmailService,
     @repository(UsersRepository) public userRepository: UsersRepository,
   ) {}
+
+  @get('/users')
+  @response(200, {
+    description: 'Array of Posts model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Users, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
+    return this.userRepository.find(filter);
+  }
 
   @post('/auth/signIn')
   async login(
@@ -90,7 +108,6 @@ export class UserController {
     })
     resetPassword: NewPasswordRequest,
   ): Promise<void> {
-    const {username, password} = resetPassword;
     const user = await this.userService.verifyCredentials(resetPassword);
     if (!user) {
       throw new HttpErrors.NotFound('Username or password incorrect');
@@ -133,6 +150,10 @@ export class UserController {
     })
     codeResetPassword: Code,
   ): Promise<void> {
+    if (codeResetPassword.code == '') {
+      throw new HttpErrors.NotAcceptable('Code is missing');
+    }
+
     const user = await this.userRepository.findOne({
       where: {coderesetpassword: codeResetPassword.code},
     });
@@ -145,5 +166,22 @@ export class UserController {
     await this.userRepository.updateById(user.id, {
       password: hashNewPassword,
     });
+  }
+
+  @get('users/{id}')
+  @response(200, {
+    description: 'OK',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Users),
+      },
+    },
+  })
+  async findUserById(
+    @param.path.number('id') id: number,
+    @param.filter(Users, {exclude: 'where'})
+    filter?: Filter<Users>,
+  ): Promise<Users> {
+    return this.userRepository.findById(id, filter);
   }
 }

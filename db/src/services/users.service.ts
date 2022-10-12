@@ -1,14 +1,16 @@
 import {UserService} from '@loopback/authentication';
 import {Users} from '../models';
 import {SignInCredentials} from '../models/credentials/sign-in.credentials';
-import {UserProfile, securityId} from '@loopback/security';
+import {UserProfile, securityId, SecurityBindings} from '@loopback/security';
 import {repository} from '@loopback/repository';
 import {UsersRepository} from '../repositories';
 import {HttpErrors} from '@loopback/rest';
 import {verifyPassword} from '../utils/encrypt';
+import {inject, Setter} from '@loopback/core';
 export class UsersService {
   constructor(
     @repository(UsersRepository) protected UsersRepository: UsersRepository,
+
   ) {}
 
   // public validatePassword(password: string) {
@@ -54,5 +56,7 @@ export class UsersService {
       [securityId]: users.id?.toString(),
       roles: users.roles,
     };
+    
   }
+  
 }

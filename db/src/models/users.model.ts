@@ -1,6 +1,5 @@
 import {Entity, hasMany, model, property} from '@loopback/repository';
-import {Role} from './role.model';
-import {RoleMapping} from './rolemapping.model';
+import {Products} from './products.model';
 
 @model({
   settings: {
@@ -53,6 +52,9 @@ export class Users extends Entity {
     type: 'string',
   })
   codeResetPassword?: string;
+
+  @hasMany(() => Products)
+  products: Products[];
 
   [prop: string]: any;
 

@@ -40,8 +40,8 @@ export class EmailService {
     await this.UsersRepository.updateById(user.id, {codeResetPassword: code});
 
     setTimeout(() => {
-      this.UsersRepository.updateById(user.id, {codeResetPassw8ord: ''});
-    }, 300000);
+      this.UsersRepository.updateById(user.id, {codeResetPassword: ''});
+    }, 30000);
     return transporter.sendMail(email, (err, info) => {
       if (err) {
         console.log('errororor', err);

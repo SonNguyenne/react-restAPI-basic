@@ -5,7 +5,6 @@ import {
 } from '@loopback/authorization';
 import _ from 'lodash';
 
-
 export async function basicAuthorization(
   authorizationCtx: AuthorizationContext,
   metadata: AuthorizationMetadata,

@@ -59,6 +59,7 @@
     "@loopback/rest-explorer": "^5.0.1",
     "@loopback/service-proxy": "^5.0.1",
     "loopback-connector-postgresql": "^5.5.0",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.8.0",
     "tslib": "^2.0.0"
   },
@@ -66,6 +67,7 @@
     "@loopback/build": "^9.0.1",
     "@loopback/eslint-config": "^13.0.1",
     "@loopback/testlab": "^5.0.1",
+    "@types/multer": "^1.4.7",
     "@types/node": "^14.18.21",
     "@types/nodemailer": "^6.4.6",
     "eslint": "^8.17.0",

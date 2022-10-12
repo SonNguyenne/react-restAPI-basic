@@ -1,8 +1,9 @@
 import {TokenService} from '@loopback/authentication';
 import {TokenServiceBindings} from '@loopback/authentication-jwt';
 import {inject} from '@loopback/context';
+import {Setter} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
-import {securityId, UserProfile} from '@loopback/security';
+import {securityId, UserProfile, SecurityBindings} from '@loopback/security';
 import {promisify} from 'util';
 
 const jwt = require('jsonwebtoken');
