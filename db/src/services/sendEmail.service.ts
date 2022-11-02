@@ -1,8 +1,19 @@
-import {createTestAccount, createTransport, SentMessageInfo} from 'nodemailer';
+import {createTransport, SentMessageInfo} from 'nodemailer';
 import {Users} from '../models';
 
 import {UsersRepository} from '../repositories';
 import {repository} from '@loopback/repository';
+import {Queue, QueueEvents, Worker} from 'bullmq';
+const Redis = require('ioredis');
+const redis = new Redis({
+  port: 6379, // Redis port
+  host: '127.0.0.1', // Redis host
+  username: 'default', // needs Redis >= 6
+  password: 'pando.dev',
+  db: 0, // Defaults to 0
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+});
 
 export class EmailService {
   constructor(
@@ -21,7 +32,13 @@ export class EmailService {
   }
 
   async sendResetPasswordMail(user: Users): Promise<SentMessageInfo> {
-    const transporter = await EmailService.setupTransporter();
+    const transporter = await EmailService.setupTransporter();  
+
+    await redis.on('error', (err: any) => {
+      console.log('Error ' + err);
+    });
+
+    const myQueue = new Queue('code', {connection: redis});
 
     let code = '';
     for (let i = 0; i < 6; i++) {
@@ -32,16 +49,42 @@ export class EmailService {
       subject: 'hello cu',
       html: `
       <div>
-          ${code} Here code to reset your password
+      ${code} Here code to reset your password
       </div>
       `,
     };
 
     await this.UsersRepository.updateById(user.id, {codeResetPassword: code});
 
-    setTimeout(() => {
-      this.UsersRepository.updateById(user.id, {codeResetPassword: ''});
-    }, 30000);
+    await myQueue.add(
+      'timeout',
+      {data: null},
+      {delay: 30000, removeOnComplete: true},
+    );
+
+    new Worker(
+      'code',
+      async job => {
+        this.UsersRepository.updateById(user.id, {codeResetPassword: ''});
+      },
+      {
+        connection: redis,
+      },
+    );
+
+    const queueEvents = new QueueEvents('code', {connection: redis});
+
+    queueEvents.on('completed', ({jobId}) => {
+      console.log(`${jobId} is done `);
+    });
+
+    queueEvents.on(
+      'failed',
+      ({jobId, failedReason}: {jobId: string; failedReason: string}) => {
+        console.error('error painting', failedReason);
+      },
+    );
+
     return transporter.sendMail(email, (err, info) => {
       if (err) {
         console.log('errororor', err);

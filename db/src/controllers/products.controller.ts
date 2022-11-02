@@ -18,16 +18,25 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Products} from '../models';
+import {Products, Productsize, Size} from '../models';
 import {securityId, SecurityBindings, UserProfile} from '@loopback/security';
-import {ProductsRepository} from '../repositories';
+import {
+  ProductsizeRepository,
+  ProductsRepository,
+  SizeRepository,
+} from '../repositories';
 import {authenticate} from '@loopback/authentication';
-
+import _ from 'lodash';
 export class ProductsController {
   constructor(
     @repository(ProductsRepository)
     public productsRepository: ProductsRepository,
+
+    @repository(ProductsizeRepository)
+    public productsizeRepository: ProductsizeRepository,
     @inject(SecurityBindings.USER, {optional: true}) private user: UserProfile,
+
+    @repository(SizeRepository) public sizeRepository: SizeRepository,
   ) {}
 
   @authenticate('jwt')
@@ -49,10 +58,55 @@ export class ProductsController {
     })
     products: Products,
   ): Promise<Products> {
-    console.log(products);
     products.usersId = Number(this.user[securityId]);
 
     return this.productsRepository.create(products);
+  }
+
+  @post('/products/{id}/size')
+  async createSize(
+    @param.path.number('id') id: typeof Products.prototype.id,
+    @requestBody() productSize: Productsize,
+  ): Promise<void> {
+    productSize.productId = id;
+
+    const product: any = await this.productsRepository.findById(id);
+    const sizeQuota: any = await this.productsizeRepository.findOne({
+      where: {productId: id},
+    });
+    if (sizeQuota && sizeQuota.sizeId === productSize.sizeId) {
+      await this.productsizeRepository.updateById(sizeQuota.id, {
+        quota: productSize.quota + sizeQuota.quota,
+        available: sizeQuota.available + productSize.quota,
+      });
+      if (product) {
+        await this.productsRepository.updateById(product.id, {
+          productQuota: productSize.quota + product.productQuota,
+          productAvailable: sizeQuota.available + product.productAvailable,
+        });
+      }
+    } else {
+      await this.productsRepository.updateById(product.id, {
+        productQuota: productSize.quota,
+        productAvailable: productSize.quota,
+      });
+      productSize.available = productSize.quota;
+
+      await this.productsizeRepository.create(productSize);
+    }
+  }
+
+  @post('/sizes')
+  @response(200, {
+    description: 'Created Size Successfully',
+    content: {
+      'application/json': {
+        schema: getModelSchemaRef(Size, {includeRelations: true}),
+      },
+    },
+  })
+  async size(@requestBody() size: Size): Promise<Size> {
+    return this.sizeRepository.create(size);
   }
 
   @authenticate.skip()
@@ -81,6 +135,8 @@ export class ProductsController {
   async find(
     @param.filter(Products) filter?: Filter<Products>,
   ): Promise<Products[]> {
+    // filter = filter ?? {};
+    // _.set(filter, 'order', 'productName ASC');
     return this.productsRepository.find(filter);
   }
 

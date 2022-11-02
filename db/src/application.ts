@@ -20,8 +20,7 @@ import {DbDataSource} from './datasources';
 import {UsersService} from './services/users.service';
 import {AuthorizationComponent} from '@loopback/authorization';
 import {EmailService} from './services/sendEmail.service';
-import {FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
-import multer from 'multer';
+import {UploadFile} from './services/upload.service';
 
 export {ApplicationConfig};
 
@@ -61,8 +60,6 @@ export class DbApplication extends BootMixin(
     //Mount authorization component
     this.component(AuthorizationComponent);
 
-    //config uploadfile
-    this.configureFileUpload(options.fileStorageDirectory);
     // Bind datasource
     this.dataSource(DbDataSource, UserServiceBindings.DATASOURCE_NAME);
     //Bind Provider
@@ -71,22 +68,6 @@ export class DbApplication extends BootMixin(
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
     this.bind('services.UsersService').toClass(UsersService);
     this.bind('services.EmailService').toClass(EmailService);
-  }
-
-  protected configureFileUpload(destination?: string) {
-    // Upload files to `dist/.sandbox` by default
-    destination = destination ?? path.join(__dirname, '../.ImageUpload');
-    this.bind(STORAGE_DIRECTORY).to(destination);
-    const multerOptions: multer.Options = {
-      storage: multer.diskStorage({
-        destination,
-        // Use the original file name as is
-        filename: (req, file, cb) => {
-          cb(null, file.originalname);
-        },
-      }),
-    };
-    // Configure the file upload service with multer options
-    this.configure(FILE_UPLOAD_SERVICE).to(multerOptions);
+    this.bind('services.UpLoadService').toClass(UploadFile);
   }
 }

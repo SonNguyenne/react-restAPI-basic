@@ -1,35 +1,45 @@
 import {inject} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import {
+  get,
+  getModelSchemaRef,
+  param,
   post,
   Request,
   requestBody,
+  response,
   Response,
   RestBindings,
 } from '@loopback/rest';
-import {FILE_UPLOAD_SERVICE} from '../keys';
-import {FileUploadHandler} from '../types';
+import _ from 'lodash';
+import {Files} from '../models/files.model';
+import {FilesRepository} from '../repositories/files.repository';
+import {UploadFile} from '../services/upload.service';
+var Minio = require('minio');
 
-/**
- * A controller to handle file uploads using multipart/form-data media type
- */
+const bucket = 'photos';
+var minioClient = new Minio.Client({
+  endPoint: 'localhost',
+  port: 9000,
+  useSSL: false,
+  accessKey: 'thanhson',
+  secretKey: 'thanhson',
+});
+
 export class FileUploadController {
-  /**
-   * Constructor
-   * @param handler - Inject an express request handler to deal with the request
-   */
   constructor(
-    @inject(FILE_UPLOAD_SERVICE) private handler: FileUploadHandler,
+    @repository(FilesRepository) public fileRepository: FilesRepository,
+    @inject('services.UpLoadService') public uploadFile: UploadFile,
   ) {}
   @post('/files', {
     responses: {
       200: {
         content: {
           'application/json': {
-            schema: {
-              type: 'object',
-            },
+            url: 'hehe',
           },
         },
+        description: 'Files and fields',
       },
     },
   })
@@ -37,36 +47,40 @@ export class FileUploadController {
     @requestBody.file()
     request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
-  ): Promise<object> {
-    return new Promise<object>((resolve, reject) => {
-      this.handler(request, response, (err: unknown) => {
-        console.log('request', request.files);
-        if (err) reject(err);
-        else {
-          resolve(FileUploadController.getFilesAndFields(request));
-        }
-      });
-    });
+  ) {
+    const file = await this.uploadFile.UpLoad(request, response);
+    console.log(file);
+    return file;
   }
 
-  private static getFilesAndFields(request: Request) {
-    const uploadedFiles = request.files;
-    console.log(uploadedFiles);
-    const mapper = (f: globalThis.Express.Multer.File) => ({
-      fieldname: f.fieldname,
-      originalname: f.originalname,
-      encoding: f.encoding,
-      mimetype: f.mimetype,
-      size: f.size,
+  @get('/{bucket}/download/{fileName}', {
+    responses: {
+      '200': {
+        description: `Download asset`,
+        content: {'application/json': {}},
+      },
+    },
+  })
+  async download(
+    @param.path.string('bucket') bucket: string,
+    @param.path.string('fileName') fileName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+  ) {
+    const stat = await minioClient.statObject(bucket, fileName);
+    const {size, metaData} = stat;
+    response.writeHead(200, {
+      ...metaData,
+      'Content-Type': 'application/octet-stream',
+      'Accept-Ranges': 'bytes',
+      'Content-Length': size,
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Meta': JSON.stringify(metaData),
     });
-    let files: object[] = [];
-    if (Array.isArray(uploadedFiles)) {
-      files = uploadedFiles.map(mapper);
-    } else {
-      for (const filename in uploadedFiles) {
-        files.push(...uploadedFiles[filename].map(mapper));
+    minioClient.getObject(bucket, fileName, (err: any, dataStream: any) => {
+      if (err) {
+        return console.log(err);
       }
-    }
-    return {files, fields: request.body};
+      dataStream.pipe(response);
+    });
   }
 }

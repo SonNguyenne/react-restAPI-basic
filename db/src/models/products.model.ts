@@ -1,5 +1,20 @@
-import {belongsTo, Entity, model, property} from '@loopback/repository';
+import {
+  belongsTo,
+  Entity,
+  hasMany,
+  model,
+  property,
+} from '@loopback/repository';
+import {Productsize} from './productsize.model';
+import {Size} from './size.model';
 import {Users} from './users.model';
+
+enum productType {
+  SNEAKER = 'sneaker',
+  SHIRT = 'shirt',
+  PANT = 'pant',
+  BAG = 'bag',
+}
 
 @model({
   // settings: {
@@ -26,23 +41,56 @@ export class Products extends Entity {
   @property({
     type: 'string',
   })
-  shoeName?: string;
+  productName?: string;
+
+  @property({
+    type: 'string',
+    jsonSchema: {
+      enum: Object.values(productType),
+    },
+  })
+  productType?: productType;
 
   @property({
     type: 'string',
   })
-  shoeType?: string;
+  productBrand?: string;
 
   @property({
-    type: 'string',
+    type: 'number',
   })
-  shoeSize?: number;
+  productPrice?: number;
+
+  @property({
+    type: 'number',
+  })
+  productQuota?: number;
+
+  // @property.array(Size)
+  // productSize?: Size[];
 
   @property({
     type: 'array',
     itemType: 'string',
   })
-  shoeImg?: [];
+  productImg?: [];
+
+  @hasMany(() => Size, {
+    through: {model: () => Productsize, keyFrom: 'productId', keyTo: 'sizeId'},
+  })
+  sizes: Size[];
+
+  @property({
+    type: 'number',
+    value: 0,
+  })
+  productSold?: number;
+
+  @property({
+    type: 'number',
+    value: 0,
+  })
+  productAvailable?: number;
 
   @belongsTo(() => Users)
   usersId: number;

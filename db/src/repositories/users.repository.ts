@@ -25,7 +25,7 @@ export class UsersRepository extends DefaultCrudRepository<
   ) {
     super(Users, dataSource);
     this.products = this.createHasManyRepositoryFactoryFor(
-      'products',
+      'products', 
       productsRepositoryGetter,
     );
   }
