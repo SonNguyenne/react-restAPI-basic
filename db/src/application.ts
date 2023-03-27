@@ -1,27 +1,29 @@
-import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
-import {
-  RestExplorerBindings,
-  RestExplorerComponent,
-} from '@loopback/rest-explorer';
-import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
-import {ServiceMixin} from '@loopback/service-proxy';
-import path from 'path';
-import {MySequence} from './sequence';
 import {AuthenticationComponent} from '@loopback/authentication';
 import {
   JWTAuthenticationComponent,
   TokenServiceBindings,
   UserServiceBindings,
 } from '@loopback/authentication-jwt';
-import {JWTService} from './services/jwt.service';
-import {DbDataSource} from './datasources';
-import {UsersService} from './services/users.service';
 import {AuthorizationComponent} from '@loopback/authorization';
+import {BootMixin} from '@loopback/boot';
+import {ApplicationConfig} from '@loopback/core';
+import {RepositoryMixin} from '@loopback/repository';
+import {RestApplication} from '@loopback/rest';
+import {
+  RestExplorerBindings,
+  RestExplorerComponent,
+} from '@loopback/rest-explorer';
+import {ServiceMixin} from '@loopback/service-proxy';
+import path from 'path';
+import 'reflect-metadata';
+import {DbDataSource} from './datasources';
+import {MySequence} from './sequence';
+import {JWTService} from './services/jwt.service';
+import {MetabaseService} from './services/metabase.service';
 import {EmailService} from './services/sendEmail.service';
 import {UploadFile} from './services/upload.service';
-
+import {UsersService} from './services/users.service';
+require('dotenv').config();
 export {ApplicationConfig};
 
 export class DbApplication extends BootMixin(
@@ -69,5 +71,7 @@ export class DbApplication extends BootMixin(
     this.bind('services.UsersService').toClass(UsersService);
     this.bind('services.EmailService').toClass(EmailService);
     this.bind('services.UpLoadService').toClass(UploadFile);
+    // this.bind('services.MetabaseService').toClass(MetabaseService);
+    this.service(MetabaseService).toClass(MetabaseService);
   }
 }

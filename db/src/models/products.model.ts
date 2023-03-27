@@ -5,6 +5,7 @@ import {
   model,
   property,
 } from '@loopback/repository';
+import {Timestamp} from '@redis/time-series/dist/commands';
 import {Productsize} from './productsize.model';
 import {Size} from './size.model';
 import {Users} from './users.model';
@@ -91,6 +92,12 @@ export class Products extends Entity {
     value: 0,
   })
   productAvailable?: number;
+
+  @property({
+    type: 'date',
+    default: () => new Date(),
+  })
+  createdAt?: Timestamp;
 
   @belongsTo(() => Users)
   usersId: number;

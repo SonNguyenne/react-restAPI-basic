@@ -17,6 +17,11 @@ export class Users extends Entity {
 
   @property({
     type: 'string',
+  })
+  fbId?: string;
+
+  @property({
+    type: 'string',
     required: true,
   })
   username: string;
@@ -40,7 +45,7 @@ export class Users extends Entity {
   @property({
     type: 'string',
   })
-  fullName?: string;
+  name?: string;
 
   @property({
     type: 'array',

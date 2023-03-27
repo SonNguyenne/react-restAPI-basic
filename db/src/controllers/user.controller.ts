@@ -1,7 +1,6 @@
 import {TokenServiceBindings} from '@loopback/authentication-jwt';
-import {authorize} from '@loopback/authorization';
-import {inject, service} from '@loopback/core';
-import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
+import {inject} from '@loopback/core';
+import {Filter, repository} from '@loopback/repository';
 import {
   get,
   getModelSchemaRef,
@@ -9,12 +8,11 @@ import {
   param,
   patch,
   post,
-  put,
   requestBody,
   response,
-  SchemaObject,
 } from '@loopback/rest';
-import _ from 'lodash';
+// import {got} from 'got';
+import fetch from 'node-fetch';
 import {
   Code,
   ForgotPassword,
@@ -23,13 +21,11 @@ import {
   Users,
 } from '../models';
 import {SignInCredentials} from '../models/credentials/sign-in.credentials';
-import {SignUpCredentials} from '../models/credentials/sign-up.credentials';
 import {UsersRepository} from '../repositories';
 import {JWTService} from '../services/jwt.service';
 import {EmailService} from '../services/sendEmail.service';
 import {UsersService} from '../services/users.service';
 import {encrypt} from '../utils/encrypt';
-
 export class UserController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE) public jwtService: JWTService,
@@ -71,6 +67,55 @@ export class UserController {
 
     // const userInfo = _.omit(user, 'password') as Users;
     return {token, user};
+  }
+
+  @get('/auth/signInFB')
+  async loginFB(
+    @requestBody()
+    credentials: any,
+  ): Promise<{facebookLoginUrl: any}> {
+    const facebookLoginUrl =
+      'https://www.facebook.com/v15.0/dialog/oauth?client_id=544576110809836&display=popup&redirect_uri=http://localhost:3008/login';
+    return {facebookLoginUrl};
+  }
+
+  @post('/auth/signInFB/accessToken')
+  async getAccessToken(
+    @requestBody()
+    getFbAccessToken: any,
+  ): Promise<void> {
+    const facebookLoginUrl = `https://graph.facebook.com/v15.0/oauth/access_token?client_id=544576110809836&display=popup&redirect_uri=http://localhost:3008/login&client_secret=c6f17c51afa17df0404cc0eb2d796684&code=${getFbAccessToken.code}`;
+    // let accessToken: any;
+    const res = await fetch(facebookLoginUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const accessToken = await res.json();
+
+    console.log('ressss', res);
+
+    console.log(accessToken);
+
+    const urlAccessToken = `https://graph.facebook.com/v14.0/me?field=id,name,picture,email&access_token=${accessToken.access_token}`;
+
+    const response = await fetch(urlAccessToken, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const profile = await response.json();
+
+    console.log('profile', profile);
+    // const fb = {fbId: profile.id, name: profile.name};
+    // console.log(fb)
+
+    // const created = await this.userRepository.create(fb);
+
+    // console.log('created', created);
+    // return {created};
   }
 
   @post('/auth/signUp')
@@ -166,22 +211,5 @@ export class UserController {
     await this.userRepository.updateById(user.id, {
       password: hashNewPassword,
     });
-  }
-
-  @get('users/{id}')
-  @response(200, {
-    description: 'OK',
-    content: {
-      'application/json': {
-        schema: getModelSchemaRef(Users),
-      },
-    },
-  })
-  async findUserById(
-    @param.path.number('id') id: number,
-    @param.filter(Users, {exclude: 'where'})
-    filter?: Filter<Users>,
-  ): Promise<Users> {
-    return this.userRepository.findById(id, filter);
   }
 }

@@ -3,6 +3,8 @@
   "extends": "@loopback/build/config/tsconfig.common.json",
   "compilerOptions": {
     "outDir": "dist",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
     "rootDir": "src"
   },
   "include": ["src"]
